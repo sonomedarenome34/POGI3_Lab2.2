@@ -2,7 +2,7 @@
 
 namespace Lab2_2
 {
-	public class CarPositionChanged : EventArgs
+	public class CarPositionChangedArgs : EventArgs
 	{
 		public int Max { get; set; }
 		public int Progress { get; set; }

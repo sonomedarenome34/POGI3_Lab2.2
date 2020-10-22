@@ -21,7 +21,7 @@ namespace Lab2_2
 		private GMapMarker _carMarker;
 		public event EventHandler Arrived;
 		public event EventHandler PassengerArrived;
-		public event EventHandler<CarPositionChanged> PositionChanged;
+		public event EventHandler<CarPositionChangedArgs> PositionChanged;
 		private Thread _moveThread;
 		private List<PointLatLng> lerpPoints;
 
@@ -144,7 +144,7 @@ namespace Lab2_2
 							_passenger.SetPosition(point);
 							_passenger.GetMarker().Position = point;
 						}
-						PositionChanged?.Invoke(this, new CarPositionChanged { Max = lerpPoints.Count, Progress = i });
+						PositionChanged?.Invoke(this, new CarPositionChangedArgs { Max = lerpPoints.Count, Progress = i });
 					});
 
 					Thread.Sleep(1);

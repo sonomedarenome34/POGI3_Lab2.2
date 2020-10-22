@@ -128,6 +128,7 @@ namespace Lab2_2
 			NearbyObjects.Items.Clear();
 			MapObjectName.Text = $"Object {_mapObjects.Count + 1}";
 			_passengersList.Clear();
+			TaxiProgress.Value = 0;
 			TaxiAborted?.Invoke(this, EventArgs.Empty);
 		}
 
@@ -279,7 +280,7 @@ namespace Lab2_2
 			}
 		}
 
-		public void CarPositionChanged(object sender, CarPositionChanged e)
+		public void CarPositionChanged(object sender, CarPositionChangedArgs e)
 		{
 			if (!(sender is Car car)) return;
 			Map.Position = car.GetFocus();
