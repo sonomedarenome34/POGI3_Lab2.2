@@ -22,7 +22,6 @@ namespace Lab2_2
 
 		private List<Human> _passengersList = new List<Human>();
 		public event EventHandler TaxiAborted;
-		public event EventHandler CarFinished;
 
 		private object _lock = new object();
 
@@ -221,8 +220,8 @@ namespace Lab2_2
 			_passengersList[0].Seated += currentCar.PassengerSeated;
 			currentCar.Arrived += PassengerSeated;
 			currentCar.PassengerArrived += PassengerArrivedToDestinationPoint;
-			TaxiAborted += currentCar.MapCleared;
-			CarFinished += currentCar.MapCleared;
+			TaxiAborted += currentCar.OnAborted;
+			currentCar.Aborted += Car_Aborted;
 
 			currentCar.AddPassenger(_passengersList[0]);
 			Map.Markers.Add(currentCar.CreateRouteToDestinationPoint(point));
@@ -234,15 +233,24 @@ namespace Lab2_2
 			currentCar.StartMove();
 		}
 
+		private void Car_Aborted(object sender, EventArgs e)
+		{
+			if (!(sender is Car car)) return;
+			car.Arrived -= PassengerSeated;
+			car.PassengerArrived -= PassengerArrivedToDestinationPoint;
+			car.PositionChanged -= CarPositionChanged;
+			car.Aborted -= Car_Aborted;
+		}
+
 		private void PassengerSeated(object sender, EventArgs e)
 		{
 			if (!(sender is Car car)) return;
 
+			//Map.Markers.Add(car.CreateRouteToDestinationPoint(car.GetPassenger().GetFocus()));
 			Map.Markers.Add(car.GetRoute().GetMarker());
 			Map.Markers.Move(Map.Markers.IndexOf(car.GetMarker()), Map.Markers.Count - 1);
 			foreach (var human in _passengersList)
 				Map.Markers.Move(Map.Markers.IndexOf(human.GetMarker()), Map.Markers.Count - 1);
-
 		}
 
 		public void PassengerArrivedToDestinationPoint(object sender, EventArgs e)
@@ -251,13 +259,17 @@ namespace Lab2_2
 			{
 				if (!(sender is Car car)) return;
 				var passenger = car.GetPassenger();
+
+				car.Arrived -= passenger.CarArrived;
+				passenger.Seated -= car.PassengerSeated;
+
 				_passengersList.Remove(passenger);
 				_mapObjects.Remove(passenger);
 				Map.Markers.Remove(passenger.GetMarker());
 
 				if (_passengersList.Count == 0)
 				{
-					CarFinished?.Invoke(this, EventArgs.Empty);
+					TaxiAborted?.Invoke(this, EventArgs.Empty);
 					MessageBox.Show("Every passenger has arrived to his destination.");
 					return;
 				}

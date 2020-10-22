@@ -22,6 +22,7 @@ namespace Lab2_2
 		public event EventHandler Arrived;
 		public event EventHandler PassengerArrived;
 		public event EventHandler<CarPositionChangedArgs> PositionChanged;
+		public event EventHandler Aborted;
 		private Thread _moveThread;
 		private List<PointLatLng> lerpPoints;
 
@@ -177,6 +178,10 @@ namespace Lab2_2
 			});
 		}
 
-		public void MapCleared(object sender, EventArgs e) => _moveThread?.Abort();
+		public void OnAborted(object sender, EventArgs e) 
+		{
+			_moveThread?.Abort();
+			Aborted?.Invoke(this, EventArgs.Empty);
+		}
 	}
 }
